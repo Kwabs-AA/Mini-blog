@@ -209,7 +209,7 @@
 
         function loadmore(get_key) {
             document.getElementById("writ").innerHTML = '<div class="loading">Loading posts</div>';
-
+            if (get_key>1){
             setTimeout(() => {
                 document.getElementById("writ").innerHTML = '';
 
@@ -227,6 +227,9 @@
                     }
                 }
             }, 1000);
+        }else{
+            document.getElementById("writ").innerHTML = 'No more posts available to be display';
+        }
         }
 
         function remove(post_id) {
