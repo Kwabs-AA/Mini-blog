@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Enhanced Post Form</title>
+    <title>Post Form</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
 
@@ -86,7 +86,13 @@
             margin-bottom: 20px;
             animation: fadeIn 0.5s ease-out;
         }
-
+        .subpost-container{
+            margin: 2vh;
+            align-items: center;
+        }
+        .subpost-container>button{
+            width: 100%;
+        }
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
@@ -139,6 +145,7 @@
 </head>
 <body>
     <div class="container">
+        <h1>Post Form</h1>
         <form onsubmit="myfun(event)">
             <input type="text" name="user_name" id="user" placeholder="User name" required>
             <input type="text" name="post" id="post" placeholder="Your post" required>
@@ -192,8 +199,12 @@
                     let latest_post = JSON.parse(localStorage.getItem(get_key));
 
                     document.getElementById("rename").innerHTML = `
-                        <div class="post-container">
+                        <div class="post-container" id="post-container">
                             <p><strong>${latest_post.user_name}</strong>: ${latest_post.user_post}</p>
+                            <button onclick="rename(${latest_post.post_id})">Edit</button>
+                            <button onclick="remove(${latest_post.post_id})">Delete</button>
+                        </div>
+                        <div class="subpost-container" id="subpost-container">
                             <button onclick="loadmore(${get_key})">Load all posts</button>
                         </div>
                     `;
@@ -215,6 +226,8 @@
                     let deserialised_item = JSON.parse(localStorage.getItem(i));
 
                     if (deserialised_item) {
+                        document.getElementById("post-container").style.display="none";
+                        document.getElementById("subpost-container").style.display="none";
                         document.getElementById("writ").innerHTML += `
                             <div class="post-container">
                                 <p><strong>${deserialised_item.user_name}</strong>: ${deserialised_item.user_post}</p>
@@ -239,6 +252,7 @@
             let deserialised_item = JSON.parse(localStorage.getItem(post_id));
             document.getElementById("rename").innerHTML = `
                 <div class="post-container">
+                    <h1>EDIT FORM</h1>
                     <form onsubmit="doRename(event, ${post_id})">
                         <p>Edit post for user: <strong>${deserialised_item.user_name}</strong></p>
                         <input type="text" id="replace_text" value="${deserialised_item.user_post}" required>
