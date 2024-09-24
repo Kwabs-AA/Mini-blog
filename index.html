@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced Post Form</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+        :root {
+            --primary-color: #6C63FF;
+            --secondary-color: #3F3D56;
+            --background-color: #F0F2F5;
+            --text-color: #333;
+            --card-background: #FFFFFF;
+        }
+
+        * {
+            box-sizing: border-box;
+            transition: all 0.3s ease;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        h1, h2 {
+            color: var(--secondary-color);
+            text-align: center;
+        }
+
+        form {
+            background-color: var(--card-background);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+            transform: translateY(0);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        form:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        input[type="text"], input[type="submit"] {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        input[type="submit"] {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background-color 0.3s ease;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #5753D9;
+        }
+
+        .post-container {
+            background-color: var(--card-background);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .post-container p {
+            margin: 0 0 15px 0;
+        }
+
+        button {
+            padding: 8px 15px;
+            margin-right: 10px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        button:hover {
+            background-color: #5753D9;
+            transform: scale(1.05);
+        }
+
+        #rename {
+            margin-bottom: 30px;
+        }
+
+        .loading {
+            text-align: center;
+            font-size: 18px;
+            color: var(--secondary-color);
+            margin: 20px 0;
+        }
+
+        .loading:after {
+            content: '...';
+            animation: dots 1.5s steps(5, end) infinite;
+        }
+
+        @keyframes dots {
+            0%, 20% { content: '.'; }
+            40% { content: '..'; }
+            60% { content: '...'; }
+            80%, 100% { content: ''; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Enhanced Post Form</h1>
+        <form onsubmit="myfun(event)">
+            <input type="text" name="user_name" id="user" placeholder="User name" required>
+            <input type="text" name="post" id="post" placeholder="Your post" required>
+            <input type="submit" value="Submit Post">
+        </form>
+
+        <h2>Latest Post</h2>
+        <div id="rename"></div>
+
+        <h2>All Posts</h2>
+        <div id="writ" class="write"></div>
+    </div>
+
+    <script>
+        function myfun(event) {
+            event.preventDefault();
+            
+            var post = document.getElementById("post").value;
+            var user = document.getElementById("user").value;
+
+            if (!user || !post) {
+                alert("Both fields are required!");
+                return;
+            }
+
+            let key = localStorage.getItem("key") ? parseInt(localStorage.getItem("key")) : 0;
+            key += 1;
+
+            const info = {
+                user_name: user,
+                user_post: post,
+                post_id: key
+            };
+
+            let serialised_post = JSON.stringify(info);
+            localStorage.setItem("key", key);
+            localStorage.setItem(key, serialised_post);
+
+            document.getElementById("user").value = '';
+            document.getElementById("post").value = '';
+
+            loadpost();
+        }
+
+        function loadpost() {
+            document.getElementById("writ").innerHTML = '<div class="loading">Loading posts</div>';
+
+            setTimeout(() => {
+                let get_key = localStorage.getItem("key") ? parseInt(localStorage.getItem("key")) : 0;
+                
+                if (get_key > 0) {
+                    let latest_post = JSON.parse(localStorage.getItem(get_key));
+
+                    document.getElementById("rename").innerHTML = `
+                        <div class="post-container">
+                            <p><strong>${latest_post.user_name}</strong>: ${latest_post.user_post}</p>
+                            <button onclick="loadmore(${get_key})">Load all posts</button>
+                        </div>
+                    `;
+                } else {
+                    document.getElementById("rename").innerHTML = '<p>No posts to display.</p>';
+                }
+
+                document.getElementById("writ").innerHTML = '';
+            }, 1000);
+        }
+
+        function loadmore(get_key) {
+            document.getElementById("writ").innerHTML = '<div class="loading">Loading posts</div>';
+
+            setTimeout(() => {
+                document.getElementById("writ").innerHTML = '';
+
+                for (var i = get_key; i > 0; i--) {
+                    let deserialised_item = JSON.parse(localStorage.getItem(i));
+
+                    if (deserialised_item) {
+                        document.getElementById("writ").innerHTML += `
+                            <div class="post-container">
+                                <p><strong>${deserialised_item.user_name}</strong>: ${deserialised_item.user_post}</p>
+                                <button onclick="remove(${deserialised_item.post_id})">Delete</button>
+                                <button onclick="rename(${deserialised_item.post_id})">Edit</button>
+                            </div>
+                        `;
+                    }
+                }
+            }, 1000);
+        }
+
+        function remove(post_id) {
+            localStorage.removeItem(post_id); 
+            loadpost(); 
+        }
+
+        function rename(post_id) {
+            let deserialised_item = JSON.parse(localStorage.getItem(post_id));
+            document.getElementById("rename").innerHTML = `
+                <div class="post-container">
+                    <form onsubmit="doRename(event, ${post_id})">
+                        <p>Edit post for user: <strong>${deserialised_item.user_name}</strong></p>
+                        <input type="text" id="replace_text" value="${deserialised_item.user_post}" required>
+                        <input type="submit" value="Update">
+                    </form>
+                </div>
+            `;
+        }
+
+        function doRename(event, post_id) {
+            event.preventDefault();      
+            let newPostText = document.getElementById("replace_text").value;
+            let deserialised_item = JSON.parse(localStorage.getItem(post_id));
+
+            const updatedPost = {
+                user_name: deserialised_item.user_name,
+                user_post: newPostText,
+                post_id: post_id
+            };
+
+            localStorage.setItem(post_id, JSON.stringify(updatedPost));
+            document.getElementById("rename").innerHTML = '';
+            loadpost();
+        }
+
+        window.onload = loadpost;
+    </script>
+</body>
+</html>
